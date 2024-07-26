@@ -4,4 +4,5 @@ alias getnspod="kubectl get pods -n"
 alias getspecpod="kubectl get pods -A | grep"
 alias podnsname="kubectl get pods -A | awk '{print \$1 \" \" \$2}' | grep"
 alias descpod="kubectl describe pods -n \$(podnsname" 
-
+alias logpod="kubectl logs -n \$(podnsname"
+alias logpodf="kubectl logs -f -n \$(podnsname"
