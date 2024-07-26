@@ -1,0 +1,7 @@
+alias getallns="kubectl get pods -A | awk '{print "\$1"}'"
+alias getallpod="kubectl get pods -A"
+alias getnspod="kubectl get pods -n"
+alias getspecpod="kubectl get pods -A | grep"
+alias podnsname="kubectl get pods -A | awk '{print \$1 \" \" \$2}' | grep"
+alias descpod="kubectl describe pods -n \$(podnsname" 
+
