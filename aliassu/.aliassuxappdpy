@@ -1,0 +1,8 @@
+alias getallxapp="sudo kubectl get pods -n ricxapp"
+alias getallxappchart="sudo dms_cli get_charts_list"
+alias onboardxapp="sudo dms_cli onbaord"
+alias deployxapp="sudo dms_cli install"
+alias undeployxapp="sudo dms_cli uninstall"
+alias deletexapp="curl -X DELETE \$(CHART_REPO_URL)/api/charts/"
+
+
