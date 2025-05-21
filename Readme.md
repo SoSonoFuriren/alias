@@ -18,19 +18,19 @@ cd alias
     - get all deployment information
 - getnspod <namespace>
     - get specific namespace pod information
-- getspecpod [pod name key word]
+- getspecpod <pod name key word>
     - get specific pods information
-- getspecsvc [svc name key word]
+- getspecsvc <svc name key word>
     - get specific service information
-- podnsname [namespace or name key words]
+- podnsname <namespace or name key words>
     - get specific namespaces and pods
-- descpod [namespace or name key words])
+- descpod <specific pod name key word>
     - Describe specific pod
-- logpod [namespace or name key words])
+- logpod <specific pod name key word>
     - print pod log
-- logpodf [namespace or name key words])
+- logpodf <specific pod name key word>
     - stream printing pod log
-- delpod [name key words])
+- delpod <specific pod name key word>
     - delete specific pod
 
 ## 2.2 xApp Relative
@@ -44,5 +44,10 @@ cd alias
     - deploy specific xApp
 - undeployxapp <xApp name> <xApp namespace>
     - undeploy specific xApp
-- deletexap <XAPP_CHART_NAME>/<VERSION>
+- deletexapp <XAPP_CHART_NAME> <VERSION>
     - delete a specific Chart Version from helm repository
+- getrtmtable
+    - list routing table
+- getnbconn
+    - list all e2 connection
+- getnbdetail <RAN name>

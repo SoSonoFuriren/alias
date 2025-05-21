@@ -5,8 +5,18 @@ alias getalldpy="kubectl get deploy -A"
 alias getnspod="kubectl get pods -n"
 alias getspecpod="kubectl get pods -A | grep"
 alias getspecsvc="kubectl get pods -A | grep"
+
 alias podnsname="kubectl get pods -A | awk '{print \$1 \" \" \$2}' | grep"
-alias descpod="kubectl describe pods -n \$(podnsname" 
-alias logpod="kubectl logs -n \$(podnsname"
-alias logpodf="kubectl logs -f -n \$(podnsname"
-alias delpod="kubectl delet pods -n \$(podnsname" 
+
+descpod() {
+    kubectl describe pods -n $(podnsname $1)
+}
+logpod() {
+    kubectl logs -n $(podnsname $1)
+}
+logpodf() {
+    kubectl logs -f -n $(podnsname $1)
+}
+delpod() {
+    kubectl delete pods -n $(podnsname $1)
+}
