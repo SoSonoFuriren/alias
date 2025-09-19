@@ -101,4 +101,5 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 # auto M-plane configuration
-alias pegam='~/PEGA_Mplane/autoMplane.sh'
+alias pegam='~/SMO-Mplane/Pegatron/Mplane_pega.sh'
+alias juram='~/SMO-Mplane/Metanoia-Jura/Mplane_jura.sh'
