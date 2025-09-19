@@ -78,11 +78,35 @@ create_config_structure() {
     print_success "Config directories created at $CONFIG_DIR"
 }
 
+# Function to get server information for log naming
+get_server_info() {
+    local username=$(whoami)
+    local ip_address=""
+    
+    # Try to get the primary IP address
+    if command -v ip >/dev/null 2>&1; then
+        ip_address=$(ip route get 1.1.1.1 2>/dev/null | awk '{for(i=1;i<=NF;i++) if($i=="src") print $(i+1)}' | head -1)
+    elif command -v hostname >/dev/null 2>&1; then
+        ip_address=$(hostname -I 2>/dev/null | awk '{print $1}')
+    fi
+    
+    # Fallback to localhost if IP detection fails
+    if [ -z "$ip_address" ]; then
+        ip_address="localhost"
+    fi
+    
+    # Replace dots with underscores for filename compatibility
+    ip_address=$(echo "$ip_address" | tr '.' '_')
+    
+    echo "${username}_${ip_address}"
+}
+
 # Function to backup existing zshrc
 backup_zshrc() {
     if [ -f "$ZSHRC_FILE" ]; then
         local timestamp=$(date +"%Y%m%d_%H%M%S")
-        local backup_file="$BACKUP_DIR/zshrc_backup_$timestamp"
+        local server_info=$(get_server_info)
+        local backup_file="$BACKUP_DIR/zshrc_backup_${timestamp}_${server_info}"
         cp "$ZSHRC_FILE" "$backup_file"
         print_success "Backup created: $backup_file"
     fi
@@ -501,8 +525,10 @@ EOF
 
 # Enhanced main installation function
 main() {
+    local server_info=$(get_server_info)
     print_info "Starting automated zsh configuration installation with intelligent merging..."
     print_info "Script directory: $SCRIPT_DIR"
+    print_info "Server info: $server_info"
     
     # Check parameters
     if [ $# -eq 0 ]; then
@@ -566,6 +592,7 @@ main() {
     echo "  - Oh My Zsh: $OH_MY_ZSH_CONFIG"
     echo "  - User config: $USER_CONFIG_FILE"
     echo "  - Backups: $BACKUP_DIR"
+    echo "  - Server info: $server_info"
     echo ""
     print_info "✓ No configurations were lost"
     print_info "✓ Duplicates were automatically removed"
