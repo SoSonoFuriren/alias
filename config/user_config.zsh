@@ -84,8 +84,8 @@ alias ptp4lps='sudo ps aux | grep ptp4l'
 alias ptpc1_stop='systemctl stop ptp-c1.service && sudo systemctl disable ptp-c1.service'
 alias ptpc3_stop='ptp4l_stop && phc2sys_stop && sudo systemctl disable ptp4l.service && sudo systemctl disable phc2sys.service'
 # PTP Configuration Aliases
-alias ptpc1='ptpc3_stop && sudo systemctl start ptp-c1.service && sudo systemctl enable ptp-c1.service && sudo ip link set ens1f1 down && sudo ip link set ens1f0 up && sudo /home/oai72_su/Script/oaipega.sh'
-alias ptpc3='ptpc1_stop && ptp4l_start && phc2sys_start && sudo systemctl enable ptp4l.service && sudo systemctl enable phc2sys.service && sudo ip link set ens1f0 down && sudo ip link set ens1f1 up && sudo /home/oai72_su/Script/oaijuravf.sh'
+alias ptpc1='ptpc3_stop && sudo systemctl start ptp-c1.service && sudo systemctl enable ptp-c1.service && sudo ip link set ens1f1 down && sudo ip link set ens1f0 up && sudo ~/Script/oaipega.sh'
+alias ptpc3='ptpc1_stop && ptp4l_start && phc2sys_start && sudo systemctl enable ptp4l.service && sudo systemctl enable phc2sys.service && sudo ip link set ens1f0 down && sudo ip link set ens1f1 up && sudo ~/Script/oaijuravf.sh'
 alias nrps='sudo ps aux | grep nr-softmodem'
 alias nrkill='sudo pkill -9 nr-softmodem'
 alias o1_start='sudo docker start adapter-gnb'
@@ -101,4 +101,4 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 # auto M-plane configuration
-alias pegam='/home/oai72_su/PEGA_Mplane/autoMplane.sh'
+alias pegam='~/PEGA_Mplane/autoMplane.sh'
