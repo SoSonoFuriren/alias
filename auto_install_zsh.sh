@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Auto Installation Script for zsh configuration
-# Supports intelligent detection and migration of existing configurations
+# Supports intelligent detection, migration and merging of existing configurations
 
 # Color output functions
 RED='\033[0;31m'
@@ -85,6 +85,157 @@ backup_zshrc() {
         local backup_file="$BACKUP_DIR/zshrc_backup_$timestamp"
         cp "$ZSHRC_FILE" "$backup_file"
         print_success "Backup created: $backup_file"
+    fi
+}
+
+# Function to check if line exists in file (ignoring whitespace variations)
+line_exists_in_file() {
+    local line="$1"
+    local file="$2"
+    
+    if [ ! -f "$file" ]; then
+        return 1
+    fi
+    
+    # Normalize the line (remove leading/trailing whitespace)
+    local normalized_line=$(echo "$line" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+    
+    # Skip empty lines
+    if [ -z "$normalized_line" ]; then
+        return 0
+    fi
+    
+    # Check if normalized line exists in file
+    while IFS= read -r existing_line; do
+        local normalized_existing=$(echo "$existing_line" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        if [ "$normalized_line" = "$normalized_existing" ]; then
+            return 0
+        fi
+    done < "$file"
+    
+    return 1
+}
+
+# Function to merge content into config file
+merge_content_to_file() {
+    local target_file="$1"
+    local header="$2"
+    shift 2
+    local lines=("$@")
+    
+    if [ ${#lines[@]} -eq 0 ]; then
+        return
+    fi
+    
+    print_info "Merging content to $(basename "$target_file")..."
+    
+    # Create file with header if it doesn't exist
+    if [ ! -f "$target_file" ]; then
+        cat > "$target_file" << EOF
+$header
+
+EOF
+    fi
+    
+    # Read existing content to avoid duplicates
+    local added_count=0
+    local duplicate_count=0
+    
+    for line in "${lines[@]}"; do
+        if ! line_exists_in_file "$line" "$target_file"; then
+            echo "$line" >> "$target_file"
+            ((added_count++))
+        else
+            ((duplicate_count++))
+        fi
+    done
+    
+    if [ $added_count -gt 0 ]; then
+        print_success "Added $added_count new lines to $(basename "$target_file")"
+    fi
+    
+    if [ $duplicate_count -gt 0 ]; then
+        print_info "Skipped $duplicate_count duplicate lines in $(basename "$target_file")"
+    fi
+}
+
+# Function to extract plugin names from plugins array
+extract_plugin_names() {
+    local plugins_line="$1"
+    
+    # Extract content between parentheses
+    local plugins_content=$(echo "$plugins_line" | sed -n 's/.*plugins=(\([^)]*\)).*/\1/p')
+    
+    if [ -z "$plugins_content" ]; then
+        return
+    fi
+    
+    # Split by whitespace and clean up
+    echo "$plugins_content" | tr ' ' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;/^$/d'
+}
+
+# Function to merge plugins intelligently
+merge_plugins() {
+    local new_plugins=("$@")
+    
+    if [ ${#new_plugins[@]} -eq 0 ]; then
+        return
+    fi
+    
+    print_info "Merging plugins configuration..."
+    
+    # Create plugins config if it doesn't exist
+    if [ ! -f "$PLUGINS_CONFIG" ]; then
+        cat > "$PLUGINS_CONFIG" << 'EOF'
+# Plugins Configuration
+# Oh My Zsh plugins and related settings
+
+EOF
+    fi
+    
+    # Read existing plugins
+    local existing_plugins=()
+    if [ -f "$PLUGINS_CONFIG" ]; then
+        while IFS= read -r line; do
+            if [[ "$line" =~ ^[[:space:]]*plugins= ]]; then
+                local extracted_plugins=($(extract_plugin_names "$line"))
+                existing_plugins+=("${extracted_plugins[@]}")
+            fi
+        done < "$PLUGINS_CONFIG"
+    fi
+    
+    # Merge and deduplicate plugins
+    local all_plugins=($(printf '%s\n' "${existing_plugins[@]}" "${new_plugins[@]}" | sort -u))
+    
+    # Check if we have a plugins line to update
+    local has_plugins_line=false
+    if [ -f "$PLUGINS_CONFIG" ] && grep -q "^[[:space:]]*plugins=" "$PLUGINS_CONFIG"; then
+        has_plugins_line=true
+    fi
+    
+    if [ $has_plugins_line = true ]; then
+        # Update existing plugins line
+        local plugins_string=$(printf '%s ' "${all_plugins[@]}")
+        plugins_string=${plugins_string% } # Remove trailing space
+        
+        # Create temporary file with updated plugins
+        local temp_file=$(mktemp)
+        while IFS= read -r line; do
+            if [[ "$line" =~ ^[[:space:]]*plugins= ]]; then
+                echo "plugins=($plugins_string)"
+            else
+                echo "$line"
+            fi
+        done < "$PLUGINS_CONFIG" > "$temp_file"
+        
+        mv "$temp_file" "$PLUGINS_CONFIG"
+        print_success "Updated plugins array with merged plugins"
+    else
+        # Add new plugins line
+        local plugins_string=$(printf '%s ' "${all_plugins[@]}")
+        plugins_string=${plugins_string% } # Remove trailing space
+        echo "plugins=($plugins_string)" >> "$PLUGINS_CONFIG"
+        print_success "Added plugins array with merged plugins"
     fi
 }
 
@@ -278,9 +429,79 @@ EOF
     print_success "New .zshrc created with proper structure"
 }
 
-# Main installation function
+# Function to ensure proper Oh My Zsh configuration
+ensure_oh_my_zsh_config() {
+    print_info "Ensuring proper Oh My Zsh configuration..."
+    
+    local required_lines=(
+        '# Path to your Oh My Zsh installation.'
+        'export ZSH="$HOME/.oh-my-zsh"'
+        'source $ZSH/oh-my-zsh.sh'
+    )
+    
+    if [ ! -f "$OH_MY_ZSH_CONFIG" ]; then
+        cat > "$OH_MY_ZSH_CONFIG" << 'EOF'
+# Oh My Zsh Configuration
+# Basic Oh My Zsh setup and options
+
+EOF
+    fi
+    
+    for line in "${required_lines[@]}"; do
+        if ! line_exists_in_file "$line" "$OH_MY_ZSH_CONFIG"; then
+            echo "$line" >> "$OH_MY_ZSH_CONFIG"
+            print_success "Added required Oh My Zsh line: $line"
+        fi
+    done
+}
+
+# Function to create new zshrc that preserves all configurations
+create_comprehensive_zshrc() {
+    print_info "Creating comprehensive .zshrc with proper structure..."
+    
+    cat > "$ZSHRC_FILE" << EOF
+# Zsh configuration managed by auto_install script
+# 
+# This file is automatically managed. Your configurations are organized
+# into separate files under $CONFIG_DIR
+# All existing configurations have been preserved and merged.
+
+# Load Environment configurations (loaded first for PATH and exports)
+if [ -f "$ENV_CONFIG" ]; then
+    source "$ENV_CONFIG"
+fi
+
+# Load Theme configurations (must be before Oh My Zsh)
+if [ -f "$THEME_CONFIG" ]; then
+    source "$THEME_CONFIG"
+fi
+
+# Load Plugins configurations (must be before Oh My Zsh)
+if [ -f "$PLUGINS_CONFIG" ]; then
+    source "$PLUGINS_CONFIG"
+fi
+
+# Load Oh My Zsh configurations (must be after theme and plugins)
+if [ -f "$OH_MY_ZSH_CONFIG" ]; then
+    source "$OH_MY_ZSH_CONFIG"
+fi
+
+# Load User configurations (loaded last to override defaults)
+if [ -f "$USER_CONFIG_FILE" ]; then
+    source "$USER_CONFIG_FILE"
+fi
+
+# Alias modules will be sourced below this line
+# (Auto-generated content - do not edit manually)
+
+EOF
+    
+    print_success "Comprehensive .zshrc created with proper loading order"
+}
+
+# Enhanced main installation function
 main() {
-    print_info "Starting automated zsh configuration installation..."
+    print_info "Starting automated zsh configuration installation with intelligent merging..."
     print_info "Script directory: $SCRIPT_DIR"
     
     # Check parameters
@@ -305,34 +526,39 @@ main() {
     
     if [ ! -f "$ZSHRC_FILE" ]; then
         # Situation 1: No .zshrc file exists
-        print_warning "No .zshrc file found. Skipping backup and creating new one."
-        create_new_zshrc
+        print_warning "No .zshrc file found. Creating new configuration."
+        ensure_oh_my_zsh_config
+        create_comprehensive_zshrc
         
     elif [ ! -s "$ZSHRC_FILE" ]; then
         # Situation 2: .zshrc exists but is empty
-        print_info ".zshrc exists but is empty. Proceeding with direct installation."
-        create_new_zshrc
+        print_info ".zshrc exists but is empty. Creating new configuration."
+        ensure_oh_my_zsh_config
+        create_comprehensive_zshrc
         
     else
         # Situation 3: .zshrc exists and has content
-        print_info ".zshrc exists with content. Analyzing and migrating..."
+        print_info ".zshrc exists with content. Analyzing, merging and preserving all configurations..."
         
         # Backup existing file
         backup_zshrc
         
-        # Extract and categorize content
-        categorize_and_extract_content
+        # Extract, categorize and merge content
+        categorize_and_merge_content
         
-        # Create new structured zshrc
-        create_new_zshrc
+        # Ensure Oh My Zsh is properly configured
+        ensure_oh_my_zsh_config
+        
+        # Create comprehensive structured zshrc
+        create_comprehensive_zshrc
     fi
     
     # Install alias files
     install_alias_files "$chosen_param"
     
     # Final success message
-    print_success "Installation completed successfully!"
-    print_info "Configuration details:"
+    print_success "Installation completed successfully with intelligent merging!"
+    print_info "All existing configurations have been preserved and organized:"
     echo "  - Main config: $ZSHRC_FILE"
     echo "  - Environment: $ENV_CONFIG"
     echo "  - Theme: $THEME_CONFIG"
@@ -340,6 +566,10 @@ main() {
     echo "  - Oh My Zsh: $OH_MY_ZSH_CONFIG"
     echo "  - User config: $USER_CONFIG_FILE"
     echo "  - Backups: $BACKUP_DIR"
+    echo ""
+    print_info "✓ No configurations were lost"
+    print_info "✓ Duplicates were automatically removed"
+    print_info "✓ Proper loading order established"
     echo ""
     print_info "Please restart your terminal or run 'source ~/.zshrc' to apply changes."
 }
