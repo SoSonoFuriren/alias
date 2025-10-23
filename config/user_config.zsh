@@ -105,3 +105,7 @@ export NVM_DIR="$HOME/.nvm"
 # auto M-plane configuration
 alias pegam='~/SMO-Mplane/Pegatron/Mplane_pega.sh'
 alias juram='~/SMO-Mplane/Metanoia-Jura/Mplane_jura.sh'
+
+
+eval "$(/bin/brew shellenv)"
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
