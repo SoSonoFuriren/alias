@@ -106,6 +106,43 @@ export NVM_DIR="$HOME/.nvm"
 alias pegam='~/SMO-Mplane/Pegatron/Mplane_pega.sh'
 alias juram='~/SMO-Mplane/Metanoia-Jura/Mplane_jura.sh'
 
+# 快速建立筆記 (支援指定資料夾)
+# Quick note creation (supports custom folder)
+alias nn='f(){ bash ~/ming-note/scripts/new-note.sh note "$2" "${1:-}"; }; f'
 
-eval "$(/bin/brew shellenv)"
+# 快速建立會議紀錄 (自動加入日期後綴，儲存到 Meeting-Minutes 資料夾)
+# Quick meeting minutes (auto date suffix, saves to Meeting-Minutes folder)
+alias mm='f(){ bash ~/ming-note/scripts/new-note.sh meeting "${1:-meeting}-$(date +%Y%m%d)" "Meeting-Minutes"; }; f'
+
+# 快速建立 Paper Survey（預設建立在 notes/papers，並自動更新索引）
+# Quick paper survey (defaults to notes/papers; auto-updates paper index)
+alias pp='f(){ bash ~/ming-note/scripts/new-note.sh paper-survey "${1:-paper-$(date +%Y%m%d)}" "${2:-papers}"; }; f'
+
+
+# eval "$(/bin/brew shellenv)"
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+# ================= OAI Log Shortcuts =================
+
+export MY_VNF_LOG="$HOME/gNB-logs/nfapi-VNF-pegatron-localcn-2025.w44-ming-develop.log"
+export MY_PNF_LOG="$HOME/gNB-logs/nfapi-PNF-pegatron-localcn-2025.w44-f-ming-develop.log"
+
+# --- Tail Follow Aliases ---
+alias tp='tail -f "$MY_PNF_LOG"'
+alias tv='tail -f "$MY_VNF_LOG"'
+
+# --- Grep Functions (Search with Context) ---
+gp() {
+    if [ -z "$1" ]; then
+        echo "Usage: gpnf <search_string>"
+    else
+        grep -F -C ${2:-5} --color=auto "$1" "$MY_PNF_LOG"
+    fi
+}
+gv() {
+    if [ -z "$1" ]; then
+        echo "Usage: gvnf <search_string>"
+    else
+        grep -F -C ${2:-5} --color=auto "$1" "$MY_VNF_LOG"
+    fi
+}
