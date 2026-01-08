@@ -124,25 +124,65 @@ eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
 # ================= OAI Log Shortcuts =================
 
-export MY_VNF_LOG="$HOME/gNB-logs/nfapi-VNF-pegatron-localcn-2025.w44-ming-develop.log"
-export MY_PNF_LOG="$HOME/gNB-logs/nfapi-PNF-pegatron-localcn-2025.w44-f-ming-develop.log"
+export MY_PNF_LOG="$HOME/gNB-logs/nfapi-PNF-pegatron-localcn-develop-latest-f-ming-develop.log"
+export MY_PNF_ORIGINAL_LOG="$HOME/gNB-logs/nfapi-PNF-pegatron-localcn-develop-latest-f-orig-develop.log"
+export MY_PNF_SPLIT_LOG="$HOME/gNB-logs/nfapi-PNF-Split-pegatron-localcn-develop-latest-f-ming-develop.log"
+export MY_PNF_SPLIT_ORIGINAL_LOG="$HOME/gNB-logs/nfapi-PNF-Split-pegatron-localcn-develop-latest-f-orig-develop.log"
+# export MY_VNF_LOG="/gNB-logs/nfapi-VNF-pegatron-localcn-2025.w44-ming-develop.log"
+export MY_VNF_LOG="/gNB-logs/nfapi-VNF-pegatron-localcn-develop-latest-ming-develop.log"
+export MY_VNF_ORIG_LOG="/gNB-logs/nfapi-VNF-pegatron-localcn-develop-latest-orig-develop.log"
+export MY_MEASURE_LOG="$HOME/oai_mp_f_ming/openairinterface5g/cmake_targets/ran_build/build/measure.txt"
+export MY_PRB_LOG="$HOME/oai_mp_f_ming/openairinterface5g/cmake_targets/ran_build/build/vnf-PRB.txt"
 
 # --- Tail Follow Aliases ---
-alias tp='tail -f "$MY_PNF_LOG"'
-alias tv='tail -f "$MY_VNF_LOG"'
+alias rrr='~/oai_mp_f_ming/openairinterface5g/auto_reboot_pegatron_ru.sh'
+alias tp='tail -F $MY_PNF_LOG'
+alias tpo='tail -F $MY_PNF_ORIGINAL_LOG'
+alias tpp='tail -F $MY_PNF_SPLIT_LOG'
+alias tppo='tail -F $MY_PNF_SPLIT_ORIGINAL_LOG'
+alias tv='tail -F $HOME$MY_VNF_LOG'
+alias tvo='tail -F $HOME$MY_VNF_ORIG_LOG'
+alias tvv='ssh hpe tail -F "~"$MY_VNF_LOG' 
+alias tvvo='ssh hpe tail -F "~"$MY_VNF_ORIG_LOG' 
+alias ss='~/oai_mp_f_ming/openairinterface5g/run_nfapi.sh split'
+alias ssr='~/oai_mp_f_ming/openairinterface5g/run_nfapi.sh split-orig'
+alias sl='~/oai_mp_f_ming/openairinterface5g/run_nfapi.sh local'
+alias slr='~/oai_mp_f_ming/openairinterface5g/run_nfapi.sh local-orig'
+alias qq='~/oai_mp_f_ming/openairinterface5g/stop_nfapi.sh'
 
 # --- Grep Functions (Search with Context) ---
+gm() {
+    if [ -z "$1" ]; then
+        echo "Usage: gm <search_string> <number_of_context_lines>"
+    else
+        grep -a -F -C ${2:-5} --color=auto "$1" "$MY_MEASURE_LOG"
+    fi
+}
 gp() {
     if [ -z "$1" ]; then
-        echo "Usage: gpnf <search_string>"
+        echo "Usage: gp <search_string> <number_of_context_lines>"
     else
         grep -F -C ${2:-5} --color=auto "$1" "$MY_PNF_LOG"
     fi
 }
+gpp() {
+    if [ -z "$1" ]; then
+        echo "Usage: gp <search_string> <number_of_context_lines>"
+    else
+        grep -F -C ${2:-5} --color=auto "$1" "$MY_PNF_SPLIT_LOG"
+    fi
+}
 gv() {
     if [ -z "$1" ]; then
-        echo "Usage: gvnf <search_string>"
+        echo "Usage: gv <search_string> <number_of_context_lines>"
     else
-        grep -F -C ${2:-5} --color=auto "$1" "$MY_VNF_LOG"
+        grep -F -C ${2:-5} --color=auto "$1" "$HOME$MY_VNF_LOG"
+    fi
+}
+gvv() {
+    if [ -z "$1" ]; then
+        echo "Usage: gvv <search_string> <number_of_context_lines>"
+    else
+        ssh hpe "grep -F -C ${2:-5} --color=auto \"$1\" ~$MY_VNF_LOG"
     fi
 }
