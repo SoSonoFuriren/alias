@@ -125,20 +125,20 @@ eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 # ================= OAI Log Shortcuts =================
 
 export MY_VNF_LOG="$HOME/gNB-logs/nfapi-VNF-pegatron-localcn-2025.w44-ming-develop.log"
-export MY_PNF_LOG="$HOME/gNB-logs/nfapi-PNF-pegatron-localcn-2025.w44-f-ming-develop.log"
+# export MY_PNF_LOG="$HOME/gNB-logs/nfapi-PNF-pegatron-localcn-2025.w44-f-ming-develop.log"
 
 # --- Tail Follow Aliases ---
-alias tp='tail -f "$MY_PNF_LOG"'
+# alias tp='tail -f "$MY_PNF_LOG"'
 alias tv='tail -f "$MY_VNF_LOG"'
 
 # --- Grep Functions (Search with Context) ---
-gp() {
-    if [ -z "$1" ]; then
-        echo "Usage: gpnf <search_string>"
-    else
-        grep -F -C ${2:-5} --color=auto "$1" "$MY_PNF_LOG"
-    fi
-}
+# gp() {
+#     if [ -z "$1" ]; then
+#         echo "Usage: gpnf <search_string>"
+#     else
+#         grep -F -C ${2:-5} --color=auto "$1" "$MY_PNF_LOG"
+#     fi
+# }
 gv() {
     if [ -z "$1" ]; then
         echo "Usage: gvnf <search_string>"
