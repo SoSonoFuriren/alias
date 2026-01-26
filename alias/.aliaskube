@@ -6,7 +6,9 @@ alias getnspod="kubectl get pods -n"
 alias getspecpod="kubectl get pods -A | grep"
 alias getspecsvc="kubectl get pods -A | grep"
 
-alias podnsname="kubectl get pods -A | awk '{print \$1 \" \" \$2}' | grep"
+podnsname() {
+    kubectl get pods -A | grep $1 | awk '{print $1 " " $2}'
+}
 
 descpod() {
     kubectl describe pods -n $(podnsname $1)

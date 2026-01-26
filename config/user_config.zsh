@@ -103,3 +103,6 @@ export NVM_DIR="$HOME/.nvm"
 # auto M-plane configuration
 alias pegam='~/SMO-Mplane/Pegatron/Mplane_pega.sh'
 alias juram='~/SMO-Mplane/Metanoia-Jura/Mplane_jura.sh'
+
+alias nfapi="kubectl logs -f $(kubectl get pods -n nonrtric | grep nfapi-debugger | head -1 | awk '{print $1}') -n nonrtric"
+alias nfapi-compare="python3 /home/ubuntu/ming/ming-nfapi-debugger/local_workspace/run_comparator_local.py --mode $([ $# -gt 1 ] && echo compare || echo analyze)"
