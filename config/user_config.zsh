@@ -105,4 +105,30 @@ alias pegam='~/SMO-Mplane/Pegatron/Mplane_pega.sh'
 alias juram='~/SMO-Mplane/Metanoia-Jura/Mplane_jura.sh'
 
 alias nfapi='for pod in $(kubectl get pods -n nonrtric | grep nfapi-debugger | awk "{print \$1}"); do echo "--- $pod ---"; kubectl logs -f $pod -n nonrtric; done'
-alias nfapic="python3 /home/ubuntu/ming/ming-nfapi-debugger/local_workspace/run_comparator_local.py --mode $([ $# -gt 1 ] && echo compare || echo analyze)"
+nfapic() {
+    if [ $# -eq 1 ]; then
+        python3 /home/ubuntu/ming/ming-nfapi-debugger/local_workspace/run_comparator_local.py --mode analyze "$1"
+    else
+        python3 /home/ubuntu/ming/ming-nfapi-debugger/local_workspace/run_comparator_local.py --mode compare "$@"
+    fi
+}
+
+nfapie() {
+  local cmd="$@"
+  for pod in $(kubectl get pods -n nonrtric | grep nfapi-debugger | awk '{print $1}'); do 
+    echo "--- $pod ---"
+    kubectl exec -n nonrtric "$pod" -- /bin/sh -c "$cmd"
+  done
+}
+
+# 快速建立筆記 (支援指定資料夾)
+# Quick note creation (supports custom folder)
+alias nn='f(){ bash ~/ming/ming-note/scripts/new-note.sh note "$2" "${1:-}"; }; f'
+
+# 快速建立會議紀錄 (自動加入日期後綴，儲存到 Meeting-Minutes 資料夾)
+# Quick meeting minutes (auto date suffix, saves to Meeting-Minutes folder)
+alias mm='f(){ bash ~/ming/ming-note/scripts/new-note.sh meeting "${1:-meeting}-$(date +%Y%m%d)" "Meeting-Minutes"; }; f'
+
+# 快速建立 Paper Survey（預設建立在 notes/papers，並自動更新索引）
+# Quick paper survey (defaults to notes/papers; auto-updates paper index)
+alias pp='f(){ bash ~/ming/ming-note/scripts/new-note.sh paper-survey "${1:-paper-$(date +%Y%m%d)}" "${2:-papers}"; }; f'
