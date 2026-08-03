@@ -135,7 +135,7 @@ export MY_MEASURE_LOG="$HOME/oai_mp_f_ming/openairinterface5g/cmake_targets/ran_
 export MY_PRB_LOG="$HOME/oai_mp_f_ming/openairinterface5g/cmake_targets/ran_build/build/vnf-PRB.txt"
 
 # --- Tail Follow Aliases ---
-alias rrr='~/oai_mp_f_ming/openairinterface5g/auto_reboot_pegatron_ru.sh'
+alias rrr='~/auto_reboot_pegatron_ru.sh'
 alias tp='tail -F $MY_PNF_LOG'
 alias tpo='tail -F $MY_PNF_ORIGINAL_LOG'
 alias tpp='tail -F $MY_PNF_SPLIT_LOG'
@@ -186,3 +186,15 @@ gvv() {
         ssh hpe "grep -F -C ${2:-5} --color=auto \"$1\" ~$MY_VNF_LOG"
     fi
 }
+
+# Added by Antigravity CLI installer
+export PATH="~/.local/bin:$PATH"
+
+# ================= Antigravity CLI Profiles =================$
+export PATH=$HOME/.local/bin:$PATH
+alias agy-babu='HOME=$HOME/.agy_profile_babu agy'
+alias agy-kenny='HOME=$HOME/.agy_profile_kenny agy'
+alias agy-ming='HOME=$HOME/.agy_profile_ming agy'
+alias agy-rita='HOME=$HOME/.agy_profile_rita agy'
+alias agy-tobby='HOME=$HOME/.agy_profile_tobby agy'
+# ===========================================================
