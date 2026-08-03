@@ -118,10 +118,6 @@ alias mm='f(){ bash ~/ming-note/scripts/new-note.sh meeting "${1:-meeting}-$(dat
 # Quick paper survey (defaults to notes/papers; auto-updates paper index)
 alias pp='f(){ bash ~/ming-note/scripts/new-note.sh paper-survey "${1:-paper-$(date +%Y%m%d)}" "${2:-papers}"; }; f'
 
-
-# eval "$(/bin/brew shellenv)"
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-
 # ================= OAI Log Shortcuts =================
 
 export MY_PNF_LOG="$HOME/gNB-logs/nfapi-PNF-pegatron-localcn-develop-latest-f-ming-develop.log"
